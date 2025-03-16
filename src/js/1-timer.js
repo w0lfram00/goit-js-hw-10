@@ -7,9 +7,12 @@ import 'izitoast/dist/css/iziToast.min.css';
 const refs = {
   input: document.querySelector('#datetime-picker'),
   button: document.querySelector('button'),
-  timer: document.querySelector('.timer'),
+  timerDays: document.querySelector('.value[data-days]'),
+  timerHours: document.querySelector('.value[data-hours]'),
+  timerMinutes: document.querySelector('.value[data-minutes]'),
+  timerSeconds: document.querySelector('.value[data-seconds]'),
 };
-
+console.log(refs.timerDays);
 let userSelectedDate;
 
 const options = {
@@ -22,7 +25,8 @@ const options = {
       userSelectedDate = selectedDates[0];
       refs.button.disabled = false;
       refs.button.addEventListener('click', onStartButtonClick);
-    } else
+    } else {
+      refs.button.disabled = true;
       iziToast.show({
         position: 'topRight',
         progressBarColor: '#b51b1b',
@@ -39,26 +43,27 @@ const options = {
         theme: 'dark',
         iconUrl: '../img/bi_x-octagon.svg',
       });
+    }
   },
 };
 
 flatpickr('#datetime-picker', options);
 
 function onStartButtonClick(event) {
-  setInterval(() => {
-    const timerData = convertMs(userSelectedDate - Date.now());
-    refs.button.disabled = true;
-    refs.input.disabled = true;
-    timerDataPasteInElementsChildren(timerData, refs.timer.children);
+  removeEventListener(refs.button, onStartButtonClick);
+  refs.button.disabled = true;
+  refs.input.disabled = true;
+  const timerId = setInterval(() => {
+    if (userSelectedDate - Date.now() < 0) {
+      clearInterval(timerId);
+    } else {
+      const { days, hours, minutes, seconds } = convertMs(
+        userSelectedDate - Date.now()
+      );
+      refs.timerDays.textContent = String(days).padStart(2, 0);
+      refs.timerHours.textContent = String(hours).padStart(2, 0);
+      refs.timerMinutes.textContent = String(minutes).padStart(2, 0);
+      refs.timerSeconds.textContent = String(seconds).padStart(2, 0);
+    }
   }, 1000);
-}
-
-function timerDataPasteInElementsChildren(
-  { days, hours, minutes, seconds },
-  [daysEl, hoursEl, minutesEl, secondsEl]
-) {
-  daysEl.firstElementChild.textContent = String(days).padStart(2, 0);
-  hoursEl.firstElementChild.textContent = String(hours).padStart(2, 0);
-  minutesEl.firstElementChild.textContent = String(minutes).padStart(2, 0);
-  secondsEl.firstElementChild.textContent = String(seconds).padStart(2, 0);
 }

@@ -13,18 +13,18 @@ function onFormSubmit(event) {
   const delay = event.target.elements.delay.value;
 
   createDelayedPromise(delay, status)
-    .then(message => {
+    .then(SuccessDelay => {
       iziToast.show({
-        message,
+        message: `Fulfilled promise in ${delay}ms`,
         title: 'OK',
         backgroundColor: 'green',
         theme: 'dark',
         position: 'topRight',
       });
     })
-    .catch(message => {
+    .catch(errorDelay => {
       iziToast.show({
-        message,
+        message: `Rejected promise in ${delay}ms`,
         title: 'Error',
         backgroundColor: 'red',
         theme: 'dark',
@@ -36,8 +36,8 @@ function onFormSubmit(event) {
 function createDelayedPromise(delay, status) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (status == 'fulfilled') resolve(`Fulfilled promise in ${delay}ms`);
-      else reject(`Rejected promise in ${delay}ms`);
+      if (status == 'fulfilled') resolve(delay);
+      else reject(delay);
     }, delay);
   });
 }
